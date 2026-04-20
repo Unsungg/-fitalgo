@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitalgo — Your Personal Fitness Plan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 60px 0; }
+        .card { border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .btn-primary { background: #667eea; border: none; border-radius: 8px; padding: 12px 40px; }
+        .btn-primary:hover { background: #764ba2; }
+    </style>
+</head>
+<body>
+
+    <!-- Hero section -->
+    <div class="hero text-center">
+        <h1 class="fw-bold">Fitalgo</h1>
+        <p class="lead">Your AI-powered personal fitness & nutrition planner</p>
+    </div>
+
+    <!-- Form section -->
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-7">
+                <div class="card p-4">
+                    <h4 class="mb-4 fw-bold">Enter Your Details</h4>
+                    <form action="/plan" method="POST">
+
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g. John Doe" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col mb-3">
+                                <label class="form-label">Age</label>
+                                <input type="number" name="age" class="form-control" placeholder="e.g. 25" required>
+                            </div>
+                            <div class="col mb-3">
+                                <label class="form-label">Gender</label>
+                                <select name="gender" class="form-select">
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col mb-3">
+                                <label class="form-label">Height (cm)</label>
+                                <input type="number" name="height" class="form-control" placeholder="e.g. 175" required>
+                            </div>
+                            <div class="col mb-3">
+                                <label class="form-label">Weight (kg)</label>
+                                <input type="number" name="weight" class="form-control" placeholder="e.g. 70" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Your Goal</label>
+                            <select name="goal" class="form-select">
+                                <option value="lose_weight">Lose Weight</option>
+                                <option value="gain_muscle">Gain Muscle</option>
+                                <option value="get_fit">Get Fit</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Activity Level</label>
+                            <select name="activity_level" class="form-select">
+                                <option value="sedentary">Sedentary (little or no exercise)</option>
+                                <option value="lightly_active">Lightly Active (1-3 days/week)</option>
+                                <option value="moderate">Moderate (3-5 days/week)</option>
+                                <option value="active">Active (6-7 days/week)</option>
+                                <option value="very_active">Very Active (twice a day)</option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Generate My Plan</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
