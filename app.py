@@ -112,7 +112,7 @@ def chat_api():
     # Keyword-based intelligent responses
     if any(w in message for w in ['squat', 'leg', 'quads', 'glutes']):
         reply = "For squats: stand with feet shoulder-width apart, keep your chest up and back straight. Lower until thighs are parallel to the floor, then drive through your heels to stand. Aim for 3-4 sets of 8-12 reps. Keep knees aligned with toes throughout the movement."
-    elif any(w in message for w in ['protein', 'muscle', 'gain']):
+    elif any(w in message for w in ['protein', 'gain']):
         reply = "For muscle gain, aim for 1.6-2.2g of protein per kg of bodyweight daily. Best sources: chicken breast (31g/100g), eggs (13g/100g), Greek yogurt (10g/100g), and tuna (29g/100g). Spread intake across 4-5 meals for optimal absorption."
     elif any(w in message for w in ['calorie', 'lose weight', 'fat', 'deficit']):
         reply = "For weight loss, create a 300-500 calorie daily deficit. Focus on high-volume, low-calorie foods like vegetables, lean proteins, and fruits. Avoid liquid calories and processed foods. Combine with cardio 3-4x per week for best results."
