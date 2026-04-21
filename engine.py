@@ -1,4 +1,6 @@
 import numpy as np
+from nutrition_data import get_meal_suggestions
+from ml_model import predict_calories, get_model_accuracy
 
 # Activity level multipliers for TDEE calculation
 ACTIVITY_MULTIPLIERS = {
@@ -11,9 +13,9 @@ ACTIVITY_MULTIPLIERS = {
 
 # Goal-based calorie adjustments
 GOAL_ADJUSTMENTS = {
-    'lose_weight': -500,   # 500 calorie deficit per day
-    'gain_muscle': +300,   # 300 calorie surplus per day
-    'get_fit':     0       # maintain current calories
+    'lose_weight': -500,
+    'gain_muscle': +300,
+    'get_fit':     0
 }
 
 def calculate_bmr(weight, height, age, gender):
@@ -70,18 +72,34 @@ def generate_full_plan(user):
     # Main function — generates complete fitness plan for a user
     bmr = calculate_bmr(user.weight, user.height, user.age, user.gender)
     tdee = calculate_tdee(bmr, user.activity_level)
-    target_calories = calculate_target_calories(tdee, user.goal)
+
+    # Use ML model to predict calories
+    ml_predicted = predict_calories(
+        user.age, user.height, user.weight,
+        user.gender, user.activity_level, user.goal
+    )
+
+    # Use ML prediction if available, otherwise fall back to formula
+    target_calories = ml_predicted if ml_predicted else calculate_target_calories(tdee, user.goal)
+
     workout_plan = generate_workout_plan(user.goal, user.activity_level)
+    meal_suggestions = get_meal_suggestions(target_calories, user.goal)
+
+    # Get model accuracy info
+    model_info = get_model_accuracy()
 
     return {
         'bmr': round(bmr),
         'tdee': round(tdee),
         'target_calories': round(target_calories),
         'workout_plan': workout_plan,
-        'protein_g': round((target_calories * 0.30) / 4),   # 30% protein
-        'carbs_g':   round((target_calories * 0.45) / 4),   # 45% carbs
-        'fat_g':     round((target_calories * 0.25) / 9),   # 25% fat
+        'protein_g': round((target_calories * 0.30) / 4),
+        'carbs_g':   round((target_calories * 0.45) / 4),
+        'fat_g':     round((target_calories * 0.25) / 9),
+        'meal_suggestions': meal_suggestions,
+        'model_accuracy': model_info
     }
+
 def update_plan_based_on_progress(user, progress_entries):
     # Need at least 2 entries to detect a trend
     if len(progress_entries) < 2:
@@ -99,18 +117,14 @@ def update_plan_based_on_progress(user, progress_entries):
     # Adaptive logic — adjust goal based on progress trend
     if user.goal == 'lose_weight':
         if weekly_change > 0.5:
-            # User is gaining weight — increase calorie deficit
             user.activity_level = 'active'
         elif weekly_change < -1.5:
-            # User is losing too fast — reduce deficit slightly
             user.activity_level = 'lightly_active'
 
     elif user.goal == 'gain_muscle':
         if weekly_change < 0:
-            # User is losing weight — increase calorie surplus
             user.activity_level = 'very_active'
         elif weekly_change > 1.0:
-            # User is gaining too fast — reduce surplus
             user.activity_level = 'moderate'
 
     # Recalculate and return updated plan
