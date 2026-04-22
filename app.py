@@ -140,6 +140,22 @@ def workout():
     # Generate detailed workout plan for current user
     detailed_plan = generate_detailed_workout(current_user.goal, current_user.activity_level)
     return render_template('workout.html', plan=detailed_plan)
+@app.route('/timer')
+@login_required
+def timer():
+    # Get today's exercises for the timer
+    from workout_data import generate_detailed_workout
+    detailed_plan = generate_detailed_workout(current_user.goal, current_user.activity_level)
+    
+    # Get first non-rest day exercises
+    exercises = []
+    for day, day_exercises in detailed_plan['detailed_workout'].items():
+        if day_exercises != 'rest':
+            exercises = day_exercises
+            break
+    
+    return render_template('timer.html', exercises=exercises)
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitalgo — Workout Timer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 0; }
+        .card { border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .timer-display { font-size: 72px; font-weight: 700; color: #667eea; font-family: monospace; }
+        .calorie-display { font-size: 48px; font-weight: 700; color: #ff6b6b; }
+        .exercise-active { border-left: 5px solid #667eea; background: #f0f4ff; border-radius: 0 12px 12px 0; padding: 16px; }
+        .exercise-done { border-left: 5px solid #28a745; background: #f0fff4; border-radius: 0 12px 12px 0; padding: 16px; opacity: 0.6; }
+        .exercise-pending { border-left: 5px solid #dee2e6; background: white; border-radius: 0 12px 12px 0; padding: 16px; }
+        .btn-start { background: #28a745; border: none; border-radius: 12px; padding: 14px 40px; font-size: 18px; }
+        .btn-complete { background: #667eea; border: none; border-radius: 12px; padding: 12px 30px; }
+        .btn-pause { background: #ffc107; border: none; border-radius: 12px; padding: 14px 40px; font-size: 18px; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="hero text-center">
+        <h1 class="fw-bold">Workout Timer</h1>
+        <p class="lead" id="sessionStatus">Ready to start your workout!</p>
+    </div>
+
+    <div class="container my-5">
+        <div class="row">
+
+            <!-- Timer and stats -->
+            <div class="col-md-5 mb-4">
+                <div class="card p-4 text-center mb-4">
+                    <p class="text-muted small mb-1">Total Workout Time</p>
+                    <div class="timer-display" id="timerDisplay">00:00:00</div>
+                    <p class="text-muted small mt-2" id="timerStatus">Press Start to begin</p>
+                </div>
+
+                <div class="card p-4 text-center mb-4">
+                    <p class="text-muted small mb-1">Calories Burned</p>
+                    <div class="calorie-display" id="calorieDisplay">0</div>
+                    <p class="text-muted small mt-1">kcal</p>
+                </div>
+
+                <div class="card p-4 text-center mb-4">
+                    <div class="row">
+                        <div class="col">
+                            <div class="fw-bold fs-4" id="exerciseDone">0</div>
+                            <div class="text-muted small">Exercises Done</div>
+                        </div>
+                        <div class="col">
+                            <div class="fw-bold fs-4" id="exerciseTotal">0</div>
+                            <div class="text-muted small">Total Exercises</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Control buttons -->
+                <div class="d-grid gap-2">
+                    <button class="btn btn-start text-white" id="startBtn" onclick="startWorkout()">
+                        ▶ Start Workout
+                    </button>
+                    <button class="btn btn-pause" id="pauseBtn" onclick="pauseWorkout()" style="display:none;">
+                        ⏸ Pause
+                    </button>
+                    <button class="btn btn-outline-danger" id="resetBtn" onclick="resetWorkout()" style="display:none;">
+                        ↺ Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Exercise list -->
+            <div class="col-md-7">
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-3">Today's Exercises</h5>
+                    <div id="exerciseList"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Completion message -->
+        <div id="completionCard" class="card p-4 text-center mt-4" style="display:none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <div style="font-size: 60px;">🏆</div>
+            <h3 class="fw-bold mt-2">Workout Complete!</h3>
+            <p class="lead">Amazing work! You burned <span id="finalCalories" class="fw-bold"></span> calories in <span id="finalTime" class="fw-bold"></span>!</p>
+            <a href="/dashboard" class="btn btn-light mt-2 fw-bold" style="color: #667eea;">Back to Dashboard</a>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/workout" class="btn btn-outline-secondary me-2">View Full Plan</a>
+            <a href="/dashboard" class="btn btn-outline-secondary">Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        // Workout data passed from Flask
+        const workoutExercises = {{ exercises | tojson }};
+
+        let timerInterval = null;
+        let totalSeconds = 0;
+        let isRunning = false;
+        let currentExerciseIndex = 0;
+        let totalCalories = 0;
+        let completedExercises = 0;
+
+        // Initialize exercise list
+        function initExercises() {
+            const list = document.getElementById('exerciseList');
+            document.getElementById('exerciseTotal').innerText = workoutExercises.length;
+            list.innerHTML = '';
+            workoutExercises.forEach((ex, i) => {
+                const div = document.createElement('div');
+                div.className = i === 0 ? 'exercise-active mb-3' : 'exercise-pending mb-3';
+                div.id = 'exercise-' + i;
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="fw-bold mb-1">${ex.name}</h6>
+                            <span class="text-muted small">${ex.sets} sets × ${ex.reps} | ~${ex.calories} kcal</span>
+                        </div>
+                        <div>
+                            ${i === 0 ? `<button class="btn btn-complete text-white btn-sm" onclick="completeExercise(${i})">✓ Done</button>` : ''}
+                        </div>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function startWorkout() {
+            isRunning = true;
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'block';
+            document.getElementById('resetBtn').style.display = 'block';
+            document.getElementById('sessionStatus').innerText = 'Workout in progress...';
+            document.getElementById('timerStatus').innerText = 'Keep going! 💪';
+
+            timerInterval = setInterval(() => {
+                totalSeconds++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function pauseWorkout() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                document.getElementById('pauseBtn').innerText = '▶ Resume';
+                document.getElementById('timerStatus').innerText = 'Paused';
+            } else {
+                isRunning = true;
+                timerInterval = setInterval(() => {
+                    totalSeconds++;
+                    updateTimerDisplay();
+                }, 1000);
+                document.getElementById('pauseBtn').innerText = '⏸ Pause';
+                document.getElementById('timerStatus').innerText = 'Keep going! 💪';
+            }
+        }
+
+        function resetWorkout() {
+            clearInterval(timerInterval);
+            totalSeconds = 0;
+            totalCalories = 0;
+            completedExercises = 0;
+            currentExerciseIndex = 0;
+            isRunning = false;
+            document.getElementById('timerDisplay').innerText = '00:00:00';
+            document.getElementById('calorieDisplay').innerText = '0';
+            document.getElementById('exerciseDone').innerText = '0';
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('resetBtn').style.display = 'none';
+            document.getElementById('sessionStatus').innerText = 'Ready to start your workout!';
+            document.getElementById('completionCard').style.display = 'none';
+            initExercises();
+        }
+
+        function completeExercise(index) {
+            // Mark exercise as done
+            const div = document.getElementById('exercise-' + index);
+            div.className = 'exercise-done mb-3';
+            div.querySelector('button') && div.querySelector('button').remove();
+
+            // Add calories
+            totalCalories += workoutExercises[index].calories;
+            document.getElementById('calorieDisplay').innerText = totalCalories;
+
+            completedExercises++;
+            document.getElementById('exerciseDone').innerText = completedExercises;
+
+            // Move to next exercise
+            currentExerciseIndex = index + 1;
+            if (currentExerciseIndex < workoutExercises.length) {
+                const nextDiv = document.getElementById('exercise-' + currentExerciseIndex);
+                nextDiv.className = 'exercise-active mb-3';
+                const nameEl = nextDiv.querySelector('h6');
+                const ex = workoutExercises[currentExerciseIndex];
+                nextDiv.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="fw-bold mb-1">${ex.name}</h6>
+                            <span class="text-muted small">${ex.sets} sets × ${ex.reps} | ~${ex.calories} kcal</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-complete text-white btn-sm" onclick="completeExercise(${currentExerciseIndex})">✓ Done</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // All exercises done!
+                clearInterval(timerInterval);
+                document.getElementById('completionCard').style.display = 'block';
+                document.getElementById('finalCalories').innerText = totalCalories;
+                document.getElementById('finalTime').innerText = document.getElementById('timerDisplay').innerText;
+                document.getElementById('sessionStatus').innerText = 'Workout Complete! 🏆';
+            }
+        }
+
+        function updateTimerDisplay() {
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+            document.getElementById('timerDisplay').innerText =
+                String(h).padStart(2,'0') + ':' +
+                String(m).padStart(2,'0') + ':' +
+                String(s).padStart(2,'0');
+        }
+
+        // Initialize on page load
+        initExercises();
+    </script>
+</body>
+</html>
