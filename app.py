@@ -1,5 +1,5 @@
 import json
-
+from workout_data import generate_detailed_workout
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -134,7 +134,12 @@ def chat_api():
         reply = "Great question! For personalized fitness advice, focus on these fundamentals: progressive overload in training, adequate protein intake (1.6-2g per kg bodyweight), quality sleep (7-9 hours), and consistency. Would you like specific advice on training, nutrition, or recovery?"
 
     return json.dumps({'reply': reply})
-
+@app.route('/workout')
+@login_required
+def workout():
+    # Generate detailed workout plan for current user
+    detailed_plan = generate_detailed_workout(current_user.goal, current_user.activity_level)
+    return render_template('workout.html', plan=detailed_plan)
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
