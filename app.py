@@ -1,4 +1,6 @@
 import json
+from nutrition_data import get_meal_suggestions, get_meal_recipes
+from supplement_data import get_supplement_recommendations
 from workout_data import generate_detailed_workout
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -155,6 +157,24 @@ def timer():
             break
     
     return render_template('timer.html', exercises=exercises)
+@app.route('/supplements')
+@login_required
+def supplements():
+    # Get personalized supplement recommendations
+    supp_data = get_supplement_recommendations(current_user.goal)
+    goal_display = {
+        'lose_weight': 'Lose Weight',
+        'gain_muscle': 'Gain Muscle',
+        'get_fit': 'Get Fit'
+    }.get(current_user.goal, 'Get Fit')
+    return render_template('supplements.html', supplements=supp_data, goal_display=goal_display)
+
+@app.route('/recipes')
+@login_required
+def recipes():
+    # Get meal recipes based on user goal
+    meal_recipes = get_meal_recipes(current_user.goal)
+    return render_template('recipes.html', recipes=meal_recipes)
 
 if __name__ == '__main__':
     with app.app_context():

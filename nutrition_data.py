@@ -95,3 +95,113 @@ def get_meal_suggestions(target_calories, goal):
         meals[meal_name] = meal_foods
 
     return meals
+def get_meal_recipes(goal):
+    # Recipe suggestions based on fitness goal
+    recipes = {
+        'lose_weight': [
+            {
+                'meal': 'Breakfast',
+                'name': 'Greek Yogurt Protein Bowl',
+                'ingredients': ['200g Greek yogurt', '1 banana', '30g oats', '1 tbsp honey', '10g chia seeds'],
+                'instructions': 'Mix oats into Greek yogurt. Slice banana on top. Drizzle honey and sprinkle chia seeds.',
+                'prep_time': '5 min',
+                'calories': 380,
+                'protein': 22,
+                'carbs': 58,
+                'fat': 6
+            },
+            {
+                'meal': 'Lunch',
+                'name': 'Grilled Chicken & Quinoa Salad',
+                'ingredients': ['150g chicken breast', '80g quinoa', '100g spinach', '50g cherry tomatoes', '1 tbsp olive oil', 'lemon juice'],
+                'instructions': 'Cook quinoa. Grill chicken with salt and pepper. Combine with spinach and tomatoes. Dress with olive oil and lemon.',
+                'prep_time': '20 min',
+                'calories': 450,
+                'protein': 45,
+                'carbs': 38,
+                'fat': 12
+            },
+            {
+                'meal': 'Dinner',
+                'name': 'Baked Salmon with Sweet Potato',
+                'ingredients': ['180g salmon fillet', '150g sweet potato', '100g broccoli', '1 tbsp olive oil', 'garlic', 'herbs'],
+                'instructions': 'Bake salmon at 200°C for 15 min. Roast sweet potato cubes. Steam broccoli. Season with garlic and herbs.',
+                'prep_time': '25 min',
+                'calories': 480,
+                'protein': 38,
+                'carbs': 42,
+                'fat': 14
+            }
+        ],
+        'gain_muscle': [
+            {
+                'meal': 'Breakfast',
+                'name': 'Muscle Builder Omelette',
+                'ingredients': ['4 whole eggs', '50g oats', '1 banana', '200ml whole milk', '30g cheese'],
+                'instructions': 'Whisk eggs, cook omelette with cheese. Serve with oatmeal made with milk and topped with banana.',
+                'prep_time': '10 min',
+                'calories': 620,
+                'protein': 42,
+                'carbs': 65,
+                'fat': 18
+            },
+            {
+                'meal': 'Lunch',
+                'name': 'Beef & Rice Power Bowl',
+                'ingredients': ['200g lean beef mince', '150g brown rice', '100g broccoli', '2 tbsp soy sauce', '1 tbsp sesame oil', 'garlic'],
+                'instructions': 'Cook rice. Brown beef with garlic. Steam broccoli. Combine in bowl, drizzle with soy sauce and sesame oil.',
+                'prep_time': '25 min',
+                'calories': 680,
+                'protein': 52,
+                'carbs': 72,
+                'fat': 16
+            },
+            {
+                'meal': 'Dinner',
+                'name': 'Tuna Pasta with Avocado',
+                'ingredients': ['150g whole wheat pasta', '120g tuna', '1 avocado', '50g cherry tomatoes', '1 tbsp olive oil', 'lemon', 'herbs'],
+                'instructions': 'Cook pasta. Mix tuna with diced avocado, tomatoes and olive oil. Combine with pasta and squeeze lemon.',
+                'prep_time': '15 min',
+                'calories': 650,
+                'protein': 45,
+                'carbs': 68,
+                'fat': 20
+            }
+        ],
+        'get_fit': [
+            {
+                'meal': 'Breakfast',
+                'name': 'Overnight Oats with Berries',
+                'ingredients': ['80g oats', '200ml almond milk', '100g mixed berries', '1 tbsp almond butter', '1 tbsp maple syrup'],
+                'instructions': 'Mix oats with almond milk the night before. In the morning top with berries, almond butter and maple syrup.',
+                'prep_time': '5 min (+ overnight)',
+                'calories': 420,
+                'protein': 14,
+                'carbs': 62,
+                'fat': 14
+            },
+            {
+                'meal': 'Lunch',
+                'name': 'Turkey & Avocado Wrap',
+                'ingredients': ['2 whole wheat wraps', '150g turkey breast', '1 avocado', '50g lettuce', '2 tbsp hummus', 'tomato'],
+                'instructions': 'Spread hummus on wrap. Layer turkey, sliced avocado, lettuce and tomato. Roll tightly and slice.',
+                'prep_time': '10 min',
+                'calories': 520,
+                'protein': 38,
+                'carbs': 48,
+                'fat': 18
+            },
+            {
+                'meal': 'Dinner',
+                'name': 'Lentil & Vegetable Curry',
+                'ingredients': ['200g red lentils', '1 can coconut milk', '100g spinach', 'curry powder', 'garlic', 'ginger', '150g brown rice'],
+                'instructions': 'Sauté garlic and ginger. Add lentils, coconut milk and curry powder. Simmer 20 min. Add spinach. Serve with rice.',
+                'prep_time': '30 min',
+                'calories': 580,
+                'protein': 28,
+                'carbs': 82,
+                'fat': 12
+            }
+        ]
+    }
+    return recipes.get(goal, recipes['get_fit'])
