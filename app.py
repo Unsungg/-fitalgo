@@ -202,7 +202,18 @@ def set_language(lang):
     session['language'] = lang
     return redirect(request.referrer or url_for('index'))
 
+@app.route('/sw.js')
+def sw():
+    response = app.send_static_file('sw.js')
+    response.headers['Service-Worker-Allowed'] = '/'
+    return response
+
+@app.route('/manifest.json')
+def manifest():
+    return app.send_static_file('manifest.json')
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    # 0.0.0.0 allows the app to be accessed from other devices (like a phone) on the same Wi-Fi network
+    app.run(host='0.0.0.0', port=5000, debug=True)
