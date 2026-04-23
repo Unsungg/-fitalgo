@@ -176,6 +176,13 @@ def recipes():
     meal_recipes = get_meal_recipes(current_user.goal)
     return render_template('recipes.html', recipes=meal_recipes)
 
+@app.route('/set_language/<lang>')
+def set_language(lang):
+    # Store language preference in session
+    from flask import session
+    session['language'] = lang
+    return redirect(request.referrer or url_for('index'))
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

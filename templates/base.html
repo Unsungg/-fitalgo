@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitalgo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .lang-switcher { position: fixed; top: 15px; right: 15px; z-index: 9999; }
+        .lang-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); color: white; border-radius: 20px; padding: 4px 14px; font-size: 13px; cursor: pointer; backdrop-filter: blur(4px); }
+        .lang-btn:hover { background: rgba(255,255,255,0.3); }
+    </style>
+</head>
+<body>
+    <!-- Language switcher -->
+    <div class="lang-switcher">
+        <button class="lang-btn" onclick="toggleLanguage()" id="langBtn">🌐 Türkçe</button>
+    </div>
+
+    {% block content %}{% endblock %}
+
+    <script>
+        // Translation dictionary
+        const translations = {
+            tr: {
+                // Navigation
+                'Your Personal Fitness Plan': 'Kişisel Fitness Planın',
+                'Get Started Free': 'Ücretsiz Başla',
+                'Login': 'Giriş Yap',
+                'Register': 'Kayıt Ol',
+                'Logout': 'Çıkış Yap',
+                // Dashboard
+                'Your personalized plan is ready': 'Kişiselleştirilmiş planın hazır',
+                'BMR (kcal)': 'BMR (kcal)',
+                'TDEE (kcal)': 'TDEE (kcal)',
+                'Target Calories': 'Hedef Kalori',
+                'Current Weight (kg)': 'Mevcut Kilo (kg)',
+                'Daily Macronutrients': 'Günlük Makro Besinler',
+                'Protein': 'Protein',
+                'Carbohydrates': 'Karbonhidrat',
+                'Fat': 'Yağ',
+                'Weekly Workout Plan': 'Haftalık Antrenman Planı',
+                'Daily Meal Plan': 'Günlük Öğün Planı',
+                'Breakfast': 'Kahvaltı',
+                'Lunch': 'Öğle Yemeği',
+                'Dinner': 'Akşam Yemeği',
+                'Log Your Progress': 'İlerleme Kaydet',
+                'Current Weight': 'Mevcut Kilo',
+                'Notes (optional)': 'Notlar (isteğe bağlı)',
+                'Update My Plan': 'Planımı Güncelle',
+                'Progress History': 'İlerleme Geçmişi',
+                'Create New Plan': 'Yeni Plan Oluştur',
+                'AI Coach': 'AI Koç',
+                'Detailed Workout': 'Detaylı Antrenman',
+                'Supplements': 'Takviyeler',
+                'Meal Recipes': 'Yemek Tarifleri',
+                // Workout
+                'Rest day': 'Dinlenme günü',
+                'Form tip': 'Form ipucu',
+                'Common mistake': 'Yaygın hata',
+                'Back to Dashboard': 'Dashboard\'a Dön',
+                // Timer
+                'Workout Timer': 'Antrenman Zamanlayıcısı',
+                'Ready to start your workout!': 'Antrenmanına başlamaya hazır mısın!',
+                'Total Workout Time': 'Toplam Antrenman Süresi',
+                'Calories Burned': 'Yakılan Kalori',
+                'Exercises Done': 'Tamamlanan Egzersiz',
+                'Total Exercises': 'Toplam Egzersiz',
+                'Start Workout': 'Antrenmanı Başlat',
+                'Pause': 'Duraklat',
+                'Resume': 'Devam Et',
+                'Reset': 'Sıfırla',
+                "Today's Exercises": 'Bugünün Egzersizleri',
+                'Done': 'Tamamlandı',
+                'Workout Complete!': 'Antrenman Tamamlandı!',
+                // Supplements
+                'Supplement Guide': 'Takviye Rehberi',
+                'Essential Supplements': 'Temel Takviyeler',
+                'Essential': 'Temel',
+                'Recommended': 'Önerilen',
+                'Optional': 'İsteğe Bağlı',
+                'Dosage': 'Doz',
+                'When': 'Ne Zaman',
+                'Benefit': 'Faydası',
+                // Recipes
+                'Meal Recipes': 'Yemek Tarifleri',
+                'Ingredients': 'Malzemeler',
+                'How to prepare': 'Nasıl Hazırlanır',
+                // AI Coach
+                'Ask me anything about fitness and nutrition!': 'Fitness ve beslenme hakkında her şeyi sorabilirsin!',
+                'Quick questions': 'Hızlı sorular',
+                'Send': 'Gönder',
+            }
+        };
+
+        let currentLang = localStorage.getItem('fitalgo_lang') || 'en';
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'tr' : 'en';
+            localStorage.setItem('fitalgo_lang', currentLang);
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            const btn = document.getElementById('langBtn');
+            if (currentLang === 'tr') {
+                btn.innerText = '🌐 English';
+                translatePage();
+            } else {
+                btn.innerText = '🌐 Türkçe';
+                location.reload();
+            }
+        }
+
+        function translatePage() {
+            const elements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, button, a, label, th, td, div');
+            elements.forEach(el => {
+                if (el.children.length === 0 && el.innerText) {
+                    const text = el.innerText.trim();
+                    if (translations.tr[text]) {
+                        el.innerText = translations.tr[text];
+                    }
+                }
+            });
+        }
+
+        // Apply language on page load
+        if (currentLang === 'tr') {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('langBtn').innerText = '🌐 English';
+                translatePage();
+            });
+        }
+    </script>
+</body>
+</html>
