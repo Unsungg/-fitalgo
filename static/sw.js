@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fitalgo-cache-v1';
+const CACHE_NAME = 'fitalgo-cache-v2';
 const urlsToCache = [
   '/',
   '/dashboard',
@@ -8,8 +8,8 @@ const urlsToCache = [
   '/recipes',
   '/chat',
   '/static/manifest.json',
-  '/static/icon-192.png',
-  '/static/icon-512.png',
+  '/static/icon-192-v2.png',
+  '/static/icon-512-v2.png',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css'
 ];
 
