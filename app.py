@@ -155,7 +155,7 @@ def get_fitness_response(message):
         return "Key supplements: Creatine monohydrate (5g/day) for strength, Whey protein for convenient intake, Vitamin D3 for hormonal health, Omega-3 for inflammation reduction."
     else:
         return "Great question! Focus on these fundamentals: progressive overload in training, adequate protein intake (1.6-2g per kg bodyweight), quality sleep (7-9 hours), and consistency."
-@app.route('/workout')
+@app.route('/workout-plan')
 @login_required
 def workout():
     # Generate detailed workout plan for current user

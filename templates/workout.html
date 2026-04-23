@@ -120,13 +120,15 @@
                         }
                         .human-body svg path, .human-body svg ellipse {
                             transition: fill 0.3s ease, filter 0.3s ease;
-                            fill: #e2e8f0;
-                            stroke: #cbd5e1;
-                            stroke-width: 1px;
+                            fill: #818cf8 !important; /* Strong indigo */
+                            stroke: #4f46e5 !important; /* Dark indigo stroke */
+                            stroke-width: 2px !important;
                         }
                         .human-body svg.active path, .human-body svg.active ellipse {
-                            fill: #ef4444; /* Red color for active muscles */
-                            filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6));
+                            fill: #ef4444 !important; /* Vivid red fill */
+                            stroke: #b91c1c !important; /* Dark red stroke */
+                            stroke-width: 3px !important; /* Extra thick border for active */
+                            filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.9));
                         }
                         
                         /* Positions based on original CSS */
