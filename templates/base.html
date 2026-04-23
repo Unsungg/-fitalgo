@@ -21,6 +21,15 @@
         <button class="lang-btn" onclick="toggleLanguage()" id="langBtn">🌐 Türkçe</button>
     </div>
 
+    <!-- Update Toast Notification -->
+    <div id="update-toast" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #2d3748; color: white; padding: 16px; border-radius: 12px; z-index: 10000; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center; width: 90%; max-width: 350px;">
+        <p style="margin: 0 0 12px 0; font-weight: 500;">A new update is available!</p>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <button id="update-btn" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; flex: 1; font-weight: bold;">Update Now</button>
+            <button id="close-toast-btn" style="background: transparent; color: #cbd5e0; border: 1px solid #718096; padding: 8px 16px; border-radius: 6px; cursor: pointer; flex: 1;">Later</button>
+        </div>
+    </div>
+
     {% block content %}{% endblock %}
 
     <script>
@@ -136,12 +145,49 @@
             });
         }
 
-        // PWA Service Worker Registration
+        // PWA Service Worker Registration with Update Notification
+        let newWorker;
+        const updateToast = document.getElementById('update-toast');
+        const updateBtn = document.getElementById('update-btn');
+        const closeToastBtn = document.getElementById('close-toast-btn');
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('ServiceWorker registered', reg.scope))
-                    .catch(err => console.log('ServiceWorker registration failed: ', err));
+                navigator.serviceWorker.register('/sw.js').then(reg => {
+                    console.log('ServiceWorker registered', reg.scope);
+                    
+                    reg.addEventListener('updatefound', () => {
+                        newWorker = reg.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New update available!
+                                updateToast.style.display = 'block';
+                            }
+                        });
+                    });
+                }).catch(err => console.log('ServiceWorker registration failed: ', err));
+
+                let refreshing;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (refreshing) return;
+                    window.location.reload();
+                    refreshing = true;
+                });
+            });
+        }
+
+        if (updateBtn) {
+            updateBtn.addEventListener('click', () => {
+                updateToast.style.display = 'none';
+                if (newWorker) {
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                }
+            });
+        }
+
+        if (closeToastBtn) {
+            closeToastBtn.addEventListener('click', () => {
+                updateToast.style.display = 'none';
             });
         }
     </script>
