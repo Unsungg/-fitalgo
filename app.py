@@ -107,35 +107,54 @@ def chat():
 
 @app.route('/chat', methods=['POST'])
 def chat_api():
-    # Smart rule-based fitness assistant
+    # Get user message
     data = request.get_json()
-    message = data.get('message', '').lower()
+    user_message = data.get('message', '')
 
-    # Keyword-based intelligent responses
-    if any(w in message for w in ['squat', 'leg', 'quads', 'glutes']):
-        reply = "For squats: stand with feet shoulder-width apart, keep your chest up and back straight. Lower until thighs are parallel to the floor, then drive through your heels to stand. Aim for 3-4 sets of 8-12 reps. Keep knees aligned with toes throughout the movement."
-    elif any(w in message for w in ['protein', 'gain']):
-        reply = "For muscle gain, aim for 1.6-2.2g of protein per kg of bodyweight daily. Best sources: chicken breast (31g/100g), eggs (13g/100g), Greek yogurt (10g/100g), and tuna (29g/100g). Spread intake across 4-5 meals for optimal absorption."
-    elif any(w in message for w in ['calorie', 'lose weight', 'fat', 'deficit']):
-        reply = "For weight loss, create a 300-500 calorie daily deficit. Focus on high-volume, low-calorie foods like vegetables, lean proteins, and fruits. Avoid liquid calories and processed foods. Combine with cardio 3-4x per week for best results."
-    elif any(w in message for w in ['cardio', 'running', 'cycling', 'hiit']):
-        reply = "HIIT cardio is most effective for fat loss — try 30 seconds max effort, 30 seconds rest for 20 minutes. For endurance, steady-state cardio at 60-70% max heart rate works best. Aim for 150 minutes of moderate cardio per week minimum."
-    elif any(w in message for w in ['bench', 'chest', 'push', 'pectoral']):
-        reply = "For chest development, focus on: Bench Press (3x8-12), Incline Dumbbell Press (3x10), Cable Flyes (3x15). Keep shoulder blades retracted and maintain a slight arch in your lower back. Full range of motion is key for maximum muscle activation."
-    elif any(w in message for w in ['back', 'pull', 'lat', 'row']):
-        reply = "For a strong back: Deadlifts (4x5), Pull-ups (3x max), Barbell Rows (3x10), and Lat Pulldowns (3x12). Focus on pulling with your elbows, not your hands. Keep your core tight and avoid rounding your lower back."
-    elif any(w in message for w in ['sleep', 'recovery', 'rest']):
-        reply = "Sleep is crucial for muscle recovery — aim for 7-9 hours per night. During deep sleep, growth hormone is released which repairs muscle tissue. Avoid training the same muscle group 2 days in a row. Active recovery like walking or yoga on rest days is beneficial."
-    elif any(w in message for w in ['supplement', 'creatine', 'whey', 'vitamin']):
-        reply = "Key supplements worth considering: Creatine monohydrate (5g/day) for strength and power, Whey protein for convenient protein intake, Vitamin D3 for hormonal health, and Omega-3 for inflammation reduction. Always prioritize whole foods over supplements."
-    elif any(w in message for w in ['water', 'hydration', 'drink']):
-        reply = "Hydration is essential for performance — aim for 35-45ml per kg of bodyweight daily. During exercise, drink 200-300ml every 15-20 minutes. Signs of dehydration include dark urine, headaches, and decreased performance. Add electrolytes for sessions over 60 minutes."
-    elif any(w in message for w in ['warm up', 'warmup', 'stretch', 'flexibility']):
-        reply = "Always warm up for 5-10 minutes before training. Start with light cardio, then dynamic stretches (leg swings, arm circles, hip rotations). Save static stretching for after your workout when muscles are warm. A proper warm-up reduces injury risk by up to 50%."
-    else:
-        reply = "Great question! For personalized fitness advice, focus on these fundamentals: progressive overload in training, adequate protein intake (1.6-2g per kg bodyweight), quality sleep (7-9 hours), and consistency. Would you like specific advice on training, nutrition, or recovery?"
+    try:
+        import ollama
+        # Send message to local Ollama AI
+        response = ollama.chat(
+            model='llama3.2',
+            messages=[
+                {
+                    'role': 'system',
+                    'content': 'You are a professional fitness and nutrition coach named Fitalgo AI. Answer only fitness, nutrition, and health related questions. Keep answers concise and practical (max 3-4 sentences). If the question is not related to fitness or health, politely redirect.'
+                },
+                {
+                    'role': 'user',
+                    'content': user_message
+                }
+            ]
+        )
+        reply = response['message']['content']
+    except Exception as e:
+        # Fallback to rule-based responses if Ollama is not available
+        reply = get_fitness_response(user_message)
 
     return json.dumps({'reply': reply})
+
+def get_fitness_response(message):
+    # Rule-based fallback responses
+    message = message.lower()
+    if any(w in message for w in ['squat', 'leg', 'quads', 'glutes']):
+        return "For squats: stand with feet shoulder-width apart, keep your chest up and back straight. Lower until thighs are parallel to the floor, then drive through your heels to stand. Aim for 3-4 sets of 8-12 reps."
+    elif any(w in message for w in ['protein', 'gain']):
+        return "For muscle gain, aim for 1.6-2.2g of protein per kg of bodyweight daily. Best sources: chicken breast (31g/100g), eggs (13g/100g), Greek yogurt (10g/100g), and tuna (29g/100g)."
+    elif any(w in message for w in ['calorie', 'lose weight', 'fat', 'deficit']):
+        return "For weight loss, create a 300-500 calorie daily deficit. Focus on high-volume, low-calorie foods like vegetables, lean proteins, and fruits. Combine with cardio 3-4x per week for best results."
+    elif any(w in message for w in ['cardio', 'running', 'cycling', 'hiit']):
+        return "HIIT cardio is most effective for fat loss — try 30 seconds max effort, 30 seconds rest for 20 minutes. Aim for 150 minutes of moderate cardio per week minimum."
+    elif any(w in message for w in ['bench', 'chest', 'push', 'pectoral']):
+        return "For chest development: Bench Press (3x8-12), Incline Dumbbell Press (3x10), Cable Flyes (3x15). Keep shoulder blades retracted and maintain full range of motion."
+    elif any(w in message for w in ['back', 'pull', 'lat', 'row']):
+        return "For a strong back: Deadlifts (4x5), Pull-ups (3x max), Barbell Rows (3x10). Focus on pulling with your elbows, not your hands."
+    elif any(w in message for w in ['sleep', 'recovery', 'rest']):
+        return "Sleep is crucial for muscle recovery — aim for 7-9 hours per night. Avoid training the same muscle group 2 days in a row."
+    elif any(w in message for w in ['supplement', 'creatine', 'whey']):
+        return "Key supplements: Creatine monohydrate (5g/day) for strength, Whey protein for convenient intake, Vitamin D3 for hormonal health, Omega-3 for inflammation reduction."
+    else:
+        return "Great question! Focus on these fundamentals: progressive overload in training, adequate protein intake (1.6-2g per kg bodyweight), quality sleep (7-9 hours), and consistency."
 @app.route('/workout')
 @login_required
 def workout():
